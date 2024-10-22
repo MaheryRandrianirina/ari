@@ -1,0 +1,21 @@
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { Response } from 'express';
+
+@Catch(HttpException)
+export class ValidationExceptionFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
+
+    const errorResponse = {
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: ctx.getRequest().url,
+      ...(typeof exceptionResponse === 'object' && exceptionResponse),
+    };
+
+    response.status(status).json(errorResponse);
+  }
+}
