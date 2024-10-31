@@ -1,9 +1,14 @@
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Container, TextField, Typography } from "@mui/material";
 import { ChangeEventHandler, Dispatch, FC, FormEvent, FormEventHandler, SetStateAction, useState } from "react";
 import { InfinitySpin } from "react-loader-spinner";
 import { Credentials, FormValidation } from "../SignIn/SignIn";
 import { Page } from "../../App";
 import axios from "axios";
+
+type Flash = {
+  type: "error"|"success",
+  message: string|null
+};
 
 export const Register: FC<{setNewActivePage: Dispatch<SetStateAction<Page>>}> = ({setNewActivePage})=>{
     const [credentials, setCredentials]: [credentials: Credentials & {password_confirmation: string|null}, setCredentials:Dispatch<SetStateAction<Credentials & {password_confirmation: string|null}>>] = useState({
@@ -13,6 +18,11 @@ export const Register: FC<{setNewActivePage: Dispatch<SetStateAction<Page>>}> = 
     } as Credentials & {password_confirmation: string|null});
     const [submit, setSubmit]: [boolean, Dispatch<SetStateAction<boolean>>] = useState(true);
     const [showLoader, setShowLoader]:[boolean, Dispatch<SetStateAction<boolean>>] = useState(false);
+    const [flash, setFlash]: [
+      Flash, Dispatch<SetStateAction<Flash>>] = useState({
+        type: "success",
+        message:null
+    } as Flash);
     
     const formValidation: FormValidation & {password_confirmation: boolean} = {
         username: credentials.username !== null && credentials.username.length >= 3, 
@@ -32,16 +42,16 @@ export const Register: FC<{setNewActivePage: Dispatch<SetStateAction<Page>>}> = 
       axios.post("http://localhost:3000/register", credentials, {
         onUploadProgress: (event) => {
             setShowLoader(true);
-        }
+        },
+        withCredentials: true
       }).then(res => {
-        if(res.statusText.toLowerCase() === "created"){
-          localStorage.setItem("bearer-token", res.data.bearerToken);
-        }else {
-          console.log("NOT OK");
-          debugger;
-        }
+        localStorage.setItem("bearer-token", res.data.bearer_token);
+        setNewActivePage("home");
       }).catch(err => {
         setShowLoader(false);
+
+        const data = JSON.parse(err.response.data.message);
+        setFlash({type: "error", message: data.message});
       });    
       
     }
@@ -68,6 +78,9 @@ export const Register: FC<{setNewActivePage: Dispatch<SetStateAction<Page>>}> = 
           <Typography variant="h3" gutterBottom color="primary">
             Register for the access
           </Typography>
+
+          {flash.message && <Alert severity={flash.type}>{flash.message}</Alert>}
+
           <TextField
               error={!submit && formValidation.username !== true}
               id="outlined"

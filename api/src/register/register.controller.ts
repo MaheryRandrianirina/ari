@@ -1,31 +1,35 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpException, NotAcceptableException, Post, Res, UnauthorizedException } from '@nestjs/common';
 import { RegisterService } from './register.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Response } from 'express';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('')
 export class RegisterController {
 
-    constructor(private readonly registerService: RegisterService)
+    constructor(private readonly registerService: RegisterService, private readonly authService: AuthService)
     {}
 
     @Post("/register")
-    async register(@Body() createUserDto: CreateUserDto, @Res() res: Response)
+    async register(@Body() createUserDto: CreateUserDto, @Res({passthrough: true}) res: Response)
     {
         try {
-            const registeredUser = await this.registerService.register(createUserDto);
+            const user = await this.registerService.register(createUserDto);
+           
+            const jwtObject = await this.authService.login(createUserDto);
             
+            res.cookie("__token", user.refresh_token,{httpOnly: true, secure: true, sameSite: "none"});
             
-            
-            res.status(200).json({
+            res.json({
                 success: true,
-                message: "You've been successfully registered"
+                message: "You've been successfully registered",
+                bearer_token: jwtObject.access_token
             });
         }catch(e){
-            res.status(400).json({
+            throw new HttpException(JSON.stringify({
                 success: false,
-                message: "Your registration has failed. Please try again."
-            });
+                message: e instanceof NotAcceptableException || e instanceof UnauthorizedException ? e.message : "Your registration has failed. Please try again."
+            }), e.getStatus());
         }
     }
 }
