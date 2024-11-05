@@ -13,7 +13,6 @@ export class UserController {
     @UseGuards(UserGuard)
     async get(@Request() req: Req)
     {
-        console.log(req.signedCookies)
         return await this.userService.get(req);
     }
 

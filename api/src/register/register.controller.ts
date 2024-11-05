@@ -14,11 +14,11 @@ export class RegisterController {
     async register(@Body() createUserDto: CreateUserDto, @Res({passthrough: true}) res: Response)
     {
         try {
-            const user = await this.registerService.register(createUserDto);
+            await this.registerService.register(createUserDto);
            
             const jwtObject = await this.authService.login(createUserDto);
             
-            res.cookie("__token", user.refresh_token,{httpOnly: true, secure: true, sameSite: "none"});
+            res.cookie("__token", jwtObject.refresh_token,{httpOnly: true, secure: true, sameSite: "none", maxAge: 60*3600*1000});
             
             res.json({
                 success: true,

@@ -5,13 +5,14 @@ import { Model } from 'mongoose';
 import { CreateUserDto } from 'src/register/dto/create-user.dto';
 import { User } from 'src/register/schemas/user.schema';
 import { comparePasswords } from 'utils/bcrypt';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class AuthService {
 
     constructor(@InjectModel(User.name) private readonly userModel: Model<User>, private readonly jwtService: JwtService){}
     
-    async login(userDto: CreateUserDto){
+    async login(userDto: CreateUserDto|UserDto){
         const user = await this.userModel.findOne({username: userDto.username});
         
         const isVerified = await comparePasswords(userDto.password, user.password);
@@ -20,6 +21,7 @@ export class AuthService {
         }
         
         return {
+            refresh_token: user.refresh_token,
             access_token: await this.jwtService.signAsync({sub: user._id, username: user.username})
         }
     }

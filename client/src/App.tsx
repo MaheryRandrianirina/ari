@@ -6,7 +6,8 @@ import { Register } from './components/Register/Register';
 import axios from 'axios';
 
 export type User = {
-  username: string
+  username: string,
+  role?: string
 }
 
 export type Page = "home"|"signin"|"register";
@@ -16,37 +17,54 @@ function App() {
   const [token, setToken]:[string|null, Dispatch<SetStateAction<string|null>>] = useState(localStorage.getItem("bearer-token"));
   
   const [user, setUser]: [User|null, Dispatch<SetStateAction<User|null>>] = useState(null as User|null)
-  const isLoggedIn = user !== null;
+  const isLoggedIn = token !== null;
 
-  const fetchUser = ()=>{
-    if(token){
-      axios.get("http://localhost:3000/user", {
-        headers: {
-          authorization:  token
-        },
-        withCredentials:true
-      }).then(res => {
-        setUser(res.data.user)
-      }).catch(err => {
-        axios.get("http://localhost:3000/user/token",{withCredentials: true}).then(res => {
-          localStorage.setItem("bearer-token", res.data.bearer_token);
-          
-          setToken(res.data.bearer_token);
+  const Logout = useCallback(()=>{
+    localStorage.removeItem("bearer-token");
+    setToken(null);
+  }, [])
+  
+  useEffect(()=>{
+    
+    const fetchUser = ()=>{
+      if(token){
+        console.log("fetch user")
+        axios.get("http://localhost:3000/user", {
+          headers: {
+            authorization: token
+          },
+          withCredentials:true
+        }).then(res => {
+          setUser(res.data)
+        }).catch(err => {
+          axios.get("http://localhost:3000/user/token",{
+            withCredentials: true,
+            headers: {
+              authorization: token
+            }
+          }).then(res => {
+            localStorage.setItem("bearer-token", res.data.bearer_token);
+            
+            setToken(res.data.bearer_token);
+          }).catch(err => setToken(null));
         });
-      });
+      }
     }
-  }
 
-  const fetchLoggedInUser = useCallback(fetchUser, [token])
-  fetchLoggedInUser();
+    fetchUser();
+
+    setActivePage(page => {
+      if(isLoggedIn) return "home";
+      else if(!isLoggedIn && activePage !== "register") return "signin";
+      else if(!isLoggedIn && activePage !== "signin") return "register";
+    });
+  }, [activePage, token])
   
   return (
     <>
-      {isLoggedIn ? <Dashboard/> : (
-        activePage === "home" || activePage === "signin" ? 
-        <SignIn setNewActivePage={setActivePage}/> : <Register setNewActivePage={setActivePage}/>
-        )
-      }
+      {activePage === "home" && <Dashboard Logout={Logout} user={user}/>}
+      {activePage === "signin" && <SignIn setToken={setToken} setNewActivePage={setActivePage}/>} 
+      {activePage === "register" && <Register setToken={setToken} setNewActivePage={setActivePage}/>}
     </>
   )
 }

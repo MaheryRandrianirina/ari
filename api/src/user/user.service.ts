@@ -14,6 +14,7 @@ export class UserService {
     {
         const access_token = req.headers['authorization'];
         const decodedToken = this.jwtService.decode(access_token);
+        
         const user = await this.userModel.findOne({_id: decodedToken.sub}, {password: 0, refresh_token:0});
         return user;
     }

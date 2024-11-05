@@ -15,8 +15,9 @@ export type FormValidation = {
 }
 
 export const SignIn: FC<{
+  setToken: Dispatch<SetStateAction<string|null>>,
   setNewActivePage: Dispatch<SetStateAction<Page>>
-}> = ({setNewActivePage})=>{
+}> = ({setToken, setNewActivePage})=>{
 
   const [credentials, setCredentials]: [credentials: Credentials, setCredentials:Dispatch<SetStateAction<Credentials>>] = useState({
     username: null,
@@ -29,7 +30,7 @@ export const SignIn: FC<{
     username: credentials.username !== null && credentials.username.length >= 3, 
     password:credentials.password !== null && credentials.password.length >= 8
   };
-
+  
   useEffect(()=>{
     document.title = "Login";
   }, [credentials]);
@@ -43,18 +44,18 @@ export const SignIn: FC<{
       return;
     }
 
-    axios.post("http://localhost:3000/signin", credentials, {
-      onUploadProgress: (event) => {
+    axios.post("http://localhost:3000/login", credentials, {
+      onUploadProgress: () => {
           setShowLoader(true);
+      },
+      withCredentials: true,
+      headers: {
+        authorization: localStorage.getItem("bearer-token")
       }
     }).then(res => {
-      if(res.statusText.toLowerCase() === "created"){
-        localStorage.setItem("bearer-token", res.data.bearerToken);
-      }else {
-        console.log("NOT OK");
-        debugger;
-      }
-    }).catch(err => {
+      localStorage.setItem("bearer-token", res.data.bearer_token);
+      setToken(res.data.bearer_token);
+    }).catch(() => {
       setShowLoader(false);
     });    
     

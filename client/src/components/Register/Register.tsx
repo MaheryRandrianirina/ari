@@ -10,8 +10,13 @@ type Flash = {
   message: string|null
 };
 
-export const Register: FC<{setNewActivePage: Dispatch<SetStateAction<Page>>}> = ({setNewActivePage})=>{
-    const [credentials, setCredentials]: [credentials: Credentials & {password_confirmation: string|null}, setCredentials:Dispatch<SetStateAction<Credentials & {password_confirmation: string|null}>>] = useState({
+export const Register: FC<{
+  setNewActivePage: Dispatch<SetStateAction<Page>>,
+  setToken:Dispatch<SetStateAction<string|null>>
+}> = ({setNewActivePage, setToken})=>{
+    const [credentials, setCredentials]: [
+      credentials: Credentials & {password_confirmation: string|null}, 
+      setCredentials:Dispatch<SetStateAction<Credentials & {password_confirmation: string|null}>>] = useState({
         username: null,
         password: null,
         password_confirmation: null
@@ -46,7 +51,7 @@ export const Register: FC<{setNewActivePage: Dispatch<SetStateAction<Page>>}> = 
         withCredentials: true
       }).then(res => {
         localStorage.setItem("bearer-token", res.data.bearer_token);
-        setNewActivePage("home");
+        setToken(res.data.bearer_token);
       }).catch(err => {
         setShowLoader(false);
 

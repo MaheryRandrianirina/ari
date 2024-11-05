@@ -10,7 +10,7 @@ import { randomBytes } from 'crypto';
 @Injectable()
 export class RegisterService {
 
-    constructor(@InjectModel(User.name) private userModel: Model<User>, private readonly jwtService: JwtService){}
+    constructor(@InjectModel(User.name) private readonly userModel: Model<User>, private readonly jwtService: JwtService){}
 
     async register(userDto: CreateUserDto)
     {
@@ -27,6 +27,7 @@ export class RegisterService {
             refresh_token: this.jwtService.sign({username: userDto.username, sub: randomBytes(16)}),
             role: null
         });
+
         return await createdUser.save();
     }
 }
