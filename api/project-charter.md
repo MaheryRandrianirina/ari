@@ -7,4 +7,10 @@
         - username
         - password
     3. Admin creates the backlog, assigns tasks, and validates user registration
+     - All users are listed in the dashboard and could be deleted, expand the user by clicking on the username to check list of his tasks
+     - New users to be checked are listed with button to check him
+     - Only users with role have been checked
+     - All tasks are listed with the name of user assigned to
+     - Not assigned tasks are listed with button to assign a user (click on the button open a search bar to search for the user)
+    
     4. User checks tasks list then notice advancement in a gauge

@@ -24,7 +24,7 @@ export class UserService {
         const refresh_token = req.cookies['__token'];
         const decodedToken = this.jwtService.decode(refresh_token);
         const user = await this.userModel.findOne({username: decodedToken.username});
-
+        
         return await this.jwtService.signAsync({username: user.username, sub: user._id});
     }
 }

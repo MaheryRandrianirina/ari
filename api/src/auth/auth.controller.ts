@@ -12,7 +12,7 @@ export class AuthController {
     @Post("/login")
     async login(@Body() userDto: UserDto, @Req() req: Request, @Res() res: Response){
         const jwtObject = await this.authService.login(userDto);
-
+        
         res.cookie("__token", jwtObject.refresh_token,{httpOnly: true, secure: true, sameSite: "none", maxAge: 60*3600*1000});
         
         res.json({

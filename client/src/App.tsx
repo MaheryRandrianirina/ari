@@ -7,6 +7,7 @@ import axios from 'axios';
 
 export type User = {
   username: string,
+  tasks: string[],
   role?: string
 }
 
@@ -27,8 +28,7 @@ function App() {
   useEffect(()=>{
     
     const fetchUser = ()=>{
-      if(token){
-        console.log("fetch user")
+      if(token && !user){
         axios.get("http://localhost:3000/user", {
           headers: {
             authorization: token
@@ -58,6 +58,7 @@ function App() {
       else if(!isLoggedIn && activePage !== "register") return "signin";
       else if(!isLoggedIn && activePage !== "signin") return "register";
     });
+
   }, [activePage, token])
   
   return (

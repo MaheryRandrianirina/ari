@@ -25,7 +25,7 @@ export class RegisterService {
         const createdUser = new this.userModel({
             ...userDto, password: hashedPassword, 
             refresh_token: this.jwtService.sign({username: userDto.username, sub: randomBytes(16)}),
-            role: null
+            role: "user"
         });
 
         return await createdUser.save();

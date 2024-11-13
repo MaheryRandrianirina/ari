@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { ResponsiveAppBar } from "./ResponsiveAppBar";
 import { User } from "../App";
-import { Button } from "@mui/material";
+import { AdminDashboardContent } from "./dashboard/AdminDashboardContent";
 
 export const Dashboard: FC<{
     Logout: ()=>void, 
@@ -9,6 +9,6 @@ export const Dashboard: FC<{
 }> = ({Logout, user})=>{
     return <>
         <ResponsiveAppBar Logout={Logout}/>
-        {user?.role === "admin" && <Button type="submit" variant="contained" fullWidth sx={{mt:2}}>Connect</Button>}
+        {user?.role === "admin" && <AdminDashboardContent/>}
     </>
 }
