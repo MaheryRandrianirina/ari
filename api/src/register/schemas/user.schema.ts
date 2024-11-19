@@ -15,6 +15,9 @@ export class User {
   @Prop({required: true})
   refresh_token: string;
 
+  @Prop({default: ""})
+  role: "user"|"admin"|""
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

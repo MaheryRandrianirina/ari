@@ -8,7 +8,7 @@ export const useExpand = (defaultValue: number, users: User[]): [
     User[],
     number
 ] => {
-    const [expandNumber, setExpandNumber] = useState<number>(10);
+    const [expandNumber, setExpandNumber] = useState<number>(defaultValue);
 
     const handleExpand: MouseEventHandler<ExtendButtonBase<ButtonTypeMap<{}, "button">>> = (e)=>{
         setExpandNumber(nb => nb+10);

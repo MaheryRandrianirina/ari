@@ -1,8 +1,9 @@
-import { Controller, Get, Request, Res, UseGuards } from '@nestjs/common';
+import { Body, ConflictException, Controller, Get, Param, Put, Request, Res, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserGuard } from './user.guard';
 import { Request as Req, Response } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { UpdateUserDto } from 'src/register/dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -25,6 +26,22 @@ export class UserController {
         res.json({
             success: true,
             bearer_token: bearerToken
+        });
+    }
+
+    @Put("/:username/check")
+    @UseGuards(UserGuard)
+    async check(@Param() params:{username: string}, @Body() updateDTO:UpdateUserDto, @Res() res: Response)
+    {
+        if(params.username !== updateDTO.username){
+            throw new ConflictException({success: false, message: "url argument doesn't match the data provided"})
+        }
+
+        await this.userService.check(updateDTO.username)
+
+        res.json({
+            success: true,
+            message: "User has been checked"
         });
     }
 }

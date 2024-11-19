@@ -1,4 +1,4 @@
-import { Injectable, Request } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotImplementedException, Request } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request as Req } from 'express';
@@ -26,5 +26,20 @@ export class UserService {
         const user = await this.userModel.findOne({username: decodedToken.username});
         
         return await this.jwtService.signAsync({username: user.username, sub: user._id});
+    }
+
+    async check(username: string)
+    {
+        try {
+            const check = await this.userModel.updateOne({username:username}, {$set:{role: "user"}});
+            if(check.acknowledged){
+                return true;
+            }else {
+                throw new NotImplementedException("There was problem while updating user role")
+            }
+        }catch(e){
+            throw e;
+        }
+        
     }
 }

@@ -17,7 +17,7 @@ import { UsersModule } from './users/users.module';
       useFactory: (configService: ConfigService)=>({
         uri: configService.get<string>("DATABASE")
       }),
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
     AuthModule,
     UserModule,

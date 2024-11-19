@@ -4,11 +4,12 @@ import { Dashboard } from './components/Dashboard';
 import {SignIn} from './components/SignIn/SignIn';
 import { Register } from './components/Register/Register';
 import axios from 'axios';
+import { handleTokenExpiration } from './utils/handleTokenExpiration';
 
 export type User = {
   username: string,
   tasks: string[],
-  role?: string
+  role: string
 }
 
 export type Page = "home"|"signin"|"register";
@@ -37,22 +38,13 @@ function App() {
         }).then(res => {
           setUser(res.data)
         }).catch(err => {
-          axios.get("http://localhost:3000/user/token",{
-            withCredentials: true,
-            headers: {
-              authorization: token
-            }
-          }).then(res => {
-            localStorage.setItem("bearer-token", res.data.bearer_token);
-            
-            setToken(res.data.bearer_token);
-          }).catch(err => setToken(null));
+          handleTokenExpiration(setToken, token);
         });
       }
     }
 
     fetchUser();
-
+    
     setActivePage(page => {
       if(isLoggedIn) return "home";
       else if(!isLoggedIn && activePage !== "register") return "signin";
