@@ -103,15 +103,44 @@ function NotCheckedUsers({
                 }
             })
         }catch(e){
+            const err = e as AxiosError<{error:string,message:string,statusCode: number}>;
             // handle token expiration
-            handleTokenExpiration(token.set, token.value)
-            handleCheckUser(value);
+            if(err.response?.data.statusCode === 401) {
+                handleTokenExpiration(token.set, token.value)
+                handleCheckUser(value);
+            }else {
+                console.error(err)
+            }
         }
     };
 
     const handleDeleteUser = async(value: string)=>{
+        try {
+            await axios.delete(`http://localhost:3000/user/${value}/delete`, {
+                withCredentials: true,
+                headers: {
+                    authorization: localStorage.getItem("bearer-token")
+                }
+            });
 
-        // delete user
+            setUsers((users:{
+                to_check: User[],
+                checked: User[]
+        }) => {
+                return {
+                    to_check: users.to_check.filter(user => user.username !== value),
+                    checked: users.checked.filter(user => user.username !== value)
+                }
+            });
+        }catch(e){
+            const err = e as AxiosError<{error:string,message:string,statusCode: number}>;
+            if(err.response?.data.statusCode === 401) {
+                handleTokenExpiration(token.set, token.value);
+                handleDeleteUser(value);
+            }else {
+                console.error(err)
+            }
+        }
     }
 
     return <Box component="section" sx={{ p: 2, borderRadius:1, bgcolor: bg }}>

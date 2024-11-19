@@ -32,14 +32,27 @@ export class UserService {
     {
         try {
             const check = await this.userModel.updateOne({username:username}, {$set:{role: "user"}});
-            if(check.acknowledged){
-                return true;
-            }else {
-                throw new NotImplementedException("There was problem while updating user role")
+            if(!check.acknowledged){
+                throw new NotImplementedException("There was problem while updating user role");
             }
+
+            return true;
         }catch(e){
             throw e;
         }
-        
+    }
+
+    async delete(username:string)
+    {
+        try {
+            const deleteUser = await this.userModel.deleteOne({username:username});
+            if(!deleteUser.acknowledged){
+                throw new NotImplementedException("There was problem while deleting user");
+            }
+
+            return true;
+        }catch(e){
+            throw e;
+        }
     }
 }

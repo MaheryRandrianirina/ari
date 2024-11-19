@@ -1,4 +1,4 @@
-import { Body, ConflictException, Controller, Get, Param, Put, Request, Res, UseGuards } from '@nestjs/common';
+import { Body, ConflictException, Controller, Delete, Get, Param, Put, Request, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserGuard } from './user.guard';
 import { Request as Req, Response } from 'express';
@@ -42,6 +42,17 @@ export class UserController {
         res.json({
             success: true,
             message: "User has been checked"
+        });
+    }
+
+    @Delete("/:username/delete")
+    @UseGuards(UserGuard)
+    async delete(@Param() params: {username:string}, @Res() res: Response){
+        await this.userService.delete(params.username)
+
+        res.json({
+            success: true,
+            message: "User has been deleted"
         });
     }
 }
