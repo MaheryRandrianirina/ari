@@ -7,10 +7,15 @@ import { User } from "../../App";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { useExpand } from "../../hooks/useExpand";
 import { handleTokenExpiration } from "../../utils/handleTokenExpiration";
+import Collapse from '@mui/material/Collapse';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import { KeyboardArrowDown } from "@mui/icons-material";
 
-export function AdminDashboardContent ({token}: {token: {set:Dispatch<SetStateAction<string|null>>, value:string|null}}){
+export function AdminDashboardContent ({token}: {readonly token: {set:Dispatch<SetStateAction<string|null>>, value:string|null}}){
     const [users, setUsers] = useState<{
         to_check: User[],
         checked: User[]
@@ -48,6 +53,9 @@ export function AdminDashboardContent ({token}: {token: {set:Dispatch<SetStateAc
                 const error = e as AxiosError
                 if(error.status === 500){
                     console.log("handle connexion expired error");
+                }else if(error.status === 401) {
+                    handleTokenExpiration(token.set, token.value);
+                    fetchUsers();
                 }else {
                     console.error("error while fetching users : ", e);
                 }
@@ -159,13 +167,14 @@ function NotCheckedUsers({
                 }
                 disablePadding
                 >
-                <ListItemButton role={undefined} onClick={()=> handleCheckUser(value.username)} dense>
+                <ListItemButton role={undefined} dense>
                     <ListItemIcon>
                     <Checkbox
                         edge="start"
                         tabIndex={-1}
                         disableRipple
                         inputProps={{ 'aria-labelledby': labelId }}
+                        onClick={()=> handleCheckUser(value.username)}
                     />
                     </ListItemIcon>
                     <ListItemText id={labelId} primary={`${value.username}`} />
@@ -181,11 +190,14 @@ function NotCheckedUsers({
 
 function CheckedUsers({bg, users}: {readonly bg: string, readonly users: User[]}){
     const [handleExpand, handleExpandLess, usersTodisplay, expandNumber] = useExpand(10, users);
+    const [usersWithExpandedTasks, setUsersWithExpandedTasks] = useState<string[]>([]);
 
-    const handleCheckUser = (value: string) => () => {
-        // send request to check the user
+    const handleExpandUserTasks = (value: string) => () => {
+        setUsersWithExpandedTasks(users => users.includes(value) 
+            ? users.filter(user => user !== value) 
+            : [...users, value]);
     };
-
+    
     return <Box component="section" sx={{ p: 2, borderRadius:1, bgcolor: bg }}>
     <Typography variant="h6" gutterBottom align="left" color="success">Checked</Typography>
     <List sx={{ width: '100%', maxWidth: 360 }}>
@@ -193,20 +205,34 @@ function CheckedUsers({bg, users}: {readonly bg: string, readonly users: User[]}
             const labelId = `checkbox-list-label-${idx}`;
 
             return (
-                <ListItem
-                key={value.username}
-                secondaryAction={
-                    <IconButton edge="end" aria-label="comments">
-                    <DeleteIcon />
-                    </IconButton>
-                }
-                disablePadding
-                >
-                <ListItemButton role={undefined} onClick={handleCheckUser(value.username)} dense>
+                <div key={value.username}>
+                    <ListItem
+                        disablePadding
+                        secondaryAction={
+                            <IconButton edge="end" aria-label="comments" sx={{":hover": {bgcolor: "transparent"}}}>
+                            {usersWithExpandedTasks.includes(value.username) ? <KeyboardArrowDown/> : <KeyboardArrowRightIcon />}
+                            </IconButton>
+                        }
+                        >
+                            <ListItemButton role={undefined} onClick={handleExpandUserTasks(value.username)} dense>
+                                <ListItemText id={labelId} primary={`${value.username}`} />
+                            </ListItemButton>
+                    </ListItem>
+                    <Collapse in={usersWithExpandedTasks.includes(value.username)} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding>
+                        {users.filter(user => user.username === value.username)[0].tasks.map(task => {
+                            return <ListItemButton key={task.name} sx={{ pl: 4 }}>
+                                <ListItemIcon>
+                                    {task.checked ? <CheckIcon color="success"/> : <CloseIcon color="warning"/>}
+                                </ListItemIcon>
+                                <ListItemText primary={task.name} />
+                            </ListItemButton>
+                        })}
+                            
+                        </List>
                     
-                    <ListItemText id={labelId} primary={`${value.username}`} />
-                </ListItemButton>
-                </ListItem>
+                    </Collapse>
+                </div>
             );
             })}
         </List>

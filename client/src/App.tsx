@@ -6,9 +6,13 @@ import { Register } from './components/Register/Register';
 import axios from 'axios';
 import { handleTokenExpiration } from './utils/handleTokenExpiration';
 
+export type Task = {
+  name: string,
+  checked: boolean
+}
 export type User = {
   username: string,
-  tasks: string[],
+  tasks: Task[],
   role: string
 }
 
@@ -55,7 +59,7 @@ function App() {
   
   return (
     <>
-      {activePage === "home" && <Dashboard Logout={Logout} user={user}/>}
+      {activePage === "home" && <Dashboard Logout={Logout} user={user} token={token} setToken={setToken}/>}
       {activePage === "signin" && <SignIn setToken={setToken} setNewActivePage={setActivePage}/>} 
       {activePage === "register" && <Register setToken={setToken} setNewActivePage={setActivePage}/>}
     </>

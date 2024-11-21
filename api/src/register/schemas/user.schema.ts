@@ -18,6 +18,9 @@ export class User {
   @Prop({default: ""})
   role: "user"|"admin"|""
 
+  @Prop({default:[]})
+  tasks: string[]
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
