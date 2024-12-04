@@ -3,6 +3,7 @@ import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import axios from "axios"
 import { Page } from "../../App";
 import { InfinitySpin } from "react-loader-spinner";
+import { post } from "../../common/utils/api";
 
 export type Credentials = {
   username: string|null,
@@ -44,21 +45,12 @@ export const SignIn: FC<{
       return;
     }
 
-    axios.post("http://localhost:3000/login", credentials, {
-      onUploadProgress: () => {
-          setShowLoader(true);
-      },
-      withCredentials: true,
-      headers: {
-        authorization: localStorage.getItem("bearer-token")
-      }
-    }).then(res => {
+    post("login", credentials).then(res => {
       localStorage.setItem("bearer-token", res.data.bearer_token);
       setToken(res.data.bearer_token);
     }).catch(() => {
       setShowLoader(false);
-    });    
-    
+    }); 
   }
 
   const handleChangeUsername: ChangeEventHandler<HTMLInputElement> = (e)=>{

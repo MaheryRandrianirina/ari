@@ -1,15 +1,15 @@
 import Grid from '@mui/system/Grid';
 import { Task, User } from '../../App';
 import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import { Alert, Button, Card, CardActionArea, CardContent, Collapse, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box } from '@mui/system';
 import { handleTokenExpiration } from '../../utils/handleTokenExpiration';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { TasksStatus, useTaskForm } from './hooks/useTaskForm';
-import AddIcon from '@mui/icons-material/Add';
 import { TaskResponsible } from './TaskResponsible';
+import { Delete, get, post } from '../../common/utils/api';
 
 
 export function Tasks({token, setToken, users}:{
@@ -34,13 +34,7 @@ export function Tasks({token, setToken, users}:{
     useEffect(()=>{
         const fetchTasks = async()=>{
             try {
-                const res = await axios.get("http://localhost:3000/tasks", {
-                    withCredentials: true,
-                    headers: {
-                        authorization: localStorage.getItem("bearer-token")
-                    }
-                });
-
+                const res = await get("tasks");
                 if(res.data.tasks.length > 0){
                     const tasks = res.data.tasks as Task[];
                     setTasks({
@@ -52,7 +46,7 @@ export function Tasks({token, setToken, users}:{
             }catch(e){
                 const error = e as AxiosError;
                 if(error.status === 401) {
-                    handleTokenExpiration(setToken, token);
+                    handleTokenExpiration(setToken);
                     fetchTasks();
                 }
             }
@@ -75,12 +69,7 @@ export function Tasks({token, setToken, users}:{
         setLoadingTaskSaving(true);
 
         try {
-            const {data}: AxiosResponse<{task: Task}> = await axios.post("http://localhost:3000/tasks/new", {task: newTaskValue}, {
-                withCredentials: true,
-                headers: {
-                    authorization: localStorage.getItem('bearer-token')
-                }
-            });
+            const {data}: AxiosResponse<{task: Task}> = await post("tasks/new", {task: newTaskValue});
             
             setTasks(tasks => ({
                 not_done: [...tasks.not_done, data.task],
@@ -90,7 +79,7 @@ export function Tasks({token, setToken, users}:{
         }catch(e){
             const err = e as AxiosError;
             if(err.status === 401) {
-                handleTokenExpiration(setToken, token);
+                handleTokenExpiration(setToken);
             }
 
             setTaskError(true);
@@ -173,12 +162,7 @@ function TasksList({tasks, setTasks, status, setToken, token, users}:{
 
     const handleDeleteTask = async(task_id: string)=>{
         try {
-            await axios.delete(`http://localhost:3000/tasks/${task_id}`, {
-                withCredentials: true,
-                headers: {
-                    authorization: localStorage.getItem('bearer-token')
-                }
-            });
+            await Delete(`tasks/${task_id}`);
             setTasks(tasks => ({
                     not_done: tasks.not_done.filter(task => task._id !== task_id),
                     in_progress: tasks.in_progress.filter(task => task._id !== task_id),
@@ -188,7 +172,7 @@ function TasksList({tasks, setTasks, status, setToken, token, users}:{
         }catch(e){
             const error = e as AxiosError;
             if(error.status === 401) {
-                handleTokenExpiration(setToken, token);
+                handleTokenExpiration(setToken);
                 handleDeleteTask(task_id);
             }
         }

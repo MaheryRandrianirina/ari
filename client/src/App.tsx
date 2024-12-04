@@ -5,6 +5,8 @@ import {SignIn} from './components/SignIn/SignIn';
 import { Register } from './components/Register/Register';
 import axios from 'axios';
 import { handleTokenExpiration } from './utils/handleTokenExpiration';
+import { get } from './common/utils/api';
+import { TokenContext } from './common/contexts/TokenContext';
 
 export type Task = {
   _id: string,
@@ -37,15 +39,10 @@ function App() {
     
     const fetchUser = ()=>{
       if(token && !user){
-        axios.get("http://localhost:3000/auth/user", {
-          headers: {
-            authorization: token
-          },
-          withCredentials:true
-        }).then(res => {
+        get("auth/user").then(res => {
           setUser(res.data)
         }).catch(err => {
-          handleTokenExpiration(setToken, token);
+          handleTokenExpiration(setToken);
         });
       }
     }
@@ -61,11 +58,11 @@ function App() {
   }, [activePage, token])
   
   return (
-    <>
+    <TokenContext.Provider value={setToken}>
       {activePage === "home" && <Dashboard Logout={Logout} user={user} token={token} setToken={setToken}/>}
       {activePage === "signin" && <SignIn setToken={setToken} setNewActivePage={setActivePage}/>} 
       {activePage === "register" && <Register setToken={setToken} setNewActivePage={setActivePage}/>}
-    </>
+    </TokenContext.Provider>
   )
 }
 

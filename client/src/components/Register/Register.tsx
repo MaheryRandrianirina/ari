@@ -4,6 +4,7 @@ import { InfinitySpin } from "react-loader-spinner";
 import { Credentials, FormValidation } from "../SignIn/SignIn";
 import { Page } from "../../App";
 import axios from "axios";
+import { post } from "../../common/utils/api";
 
 type Flash = {
   type: "error"|"success",
@@ -44,11 +45,10 @@ export const Register: FC<{
         return;
       }
   
-      axios.post("http://localhost:3000/register", credentials, {
+      post("register", credentials, {
         onUploadProgress: (event) => {
             setShowLoader(true);
-        },
-        withCredentials: true
+        }
       }).then(res => {
         localStorage.setItem("bearer-token", res.data.bearer_token);
         setToken(res.data.bearer_token);

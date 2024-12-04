@@ -3,6 +3,9 @@ import axios, { AxiosError } from "axios";
 import { memo, MouseEventHandler, useContext, useEffect, useState } from "react";
 import { User } from "../../App";
 import { DashboardContext } from "./contexts/DashboardContext";
+import { get, post } from "../../common/utils/api";
+import { handleTokenExpiration } from "../../utils/handleTokenExpiration";
+import { TokenContext } from "../../common/contexts/TokenContext";
 
 const ITEM_HEIGHT = 48;
 
@@ -18,15 +21,21 @@ export const TaskResponsible = memo(({taskId, responsibleId, users}:{
 
     const setSnackbarMessage = useContext(DashboardContext);
 
-    const fetchResponsible = async(responsibleId:string)=>{
-        const res = await axios.get(`http://localhost:3000/user/${responsibleId}`, {
-            withCredentials:true,
-            headers: {
-                authorization: localStorage.getItem("bearer-token")
-            }
-        });
+    const setToken = useContext(TokenContext);
 
-        setResponsible(res.data.username);
+    const fetchResponsible = async(responsibleId:string)=>{
+        try {
+            const res = await get(`user/${responsibleId}`);
+
+            setResponsible(res.data.username);
+        }catch(e) {
+            const err = e as AxiosError;
+            if(err.status === 401) {
+                handleTokenExpiration(setToken);
+
+                await fetchResponsible(responsibleId);
+            }
+        }        
     }
     
     useEffect(()=>{
@@ -45,12 +54,7 @@ export const TaskResponsible = memo(({taskId, responsibleId, users}:{
 
     const handleAddTaskResponsible = async(task_id:string, user_id:string)=>{
         try {
-            await axios.post(`http://localhost:3000/tasks/${task_id}/user`, {user_id}, {
-                withCredentials:true,
-                headers: {
-                    authorization: localStorage.getItem("bearer-token")
-                }
-            });
+            await post(`http://localhost:3000/tasks/${task_id}/user`, {user_id});
             await fetchResponsible(user_id);
         }catch(e){
             const err = e as AxiosError<{message:string}>;

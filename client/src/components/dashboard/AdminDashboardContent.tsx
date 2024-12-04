@@ -5,6 +5,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { handleTokenExpiration } from "../../utils/handleTokenExpiration";
 import { Users } from "./Users";
 import { Tasks } from "./Tasks";
+import { get } from "../../common/utils/api";
 
 export type UsersWithStatus = {
     to_check: User[],
@@ -22,16 +23,13 @@ export function AdminDashboardContent ({token}: {readonly token: {set:Dispatch<S
             try {
                 const response: AxiosResponse<{
                     users: User[]
-                }> = await axios.get("http://localhost:3000/users", {
-                    withCredentials: true,
-                    headers: {
-                        authorization: localStorage.getItem("bearer-token")
-                    }
-                });
+                }> = await get("users");
                 
                 const {users} = response.data;
+
                 let checkedUsers: User[] = [];
                 let toCheckUsers: User[] = [];
+
                 users.forEach(user => {
                     if(user.role === ""){
                         toCheckUsers.push(user);
@@ -47,7 +45,7 @@ export function AdminDashboardContent ({token}: {readonly token: {set:Dispatch<S
                 if(error.status === 500){
                     console.log("handle connexion expired error");
                 }else if(error.status === 401) {
-                    handleTokenExpiration(token.set, token.value);
+                    handleTokenExpiration(token.set);
                     fetchUsers();
                 }else {
                     console.error("error while fetching users : ", e);

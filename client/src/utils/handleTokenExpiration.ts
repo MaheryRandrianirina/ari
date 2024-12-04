@@ -1,16 +1,11 @@
-import axios from "axios";
 import { Dispatch, SetStateAction } from "react";
+import { BEARER_TOKEN_INDEX } from "./consts";
+import { get } from "../common/utils/api";
 
-export const handleTokenExpiration = (setToken:Dispatch<SetStateAction<string|null>>, token:string|null)=>{
-  
-    axios.get("http://localhost:3000/user/token",{
-        withCredentials: true,
-        headers: {
-          authorization: token
-        }
-      }).then(res => {
-        localStorage.setItem("bearer-token", res.data.bearer_token);
+export const handleTokenExpiration = (setToken:Dispatch<SetStateAction<string|null>>)=>{
+    get("user/token").then(res => {
+      localStorage.setItem(BEARER_TOKEN_INDEX, res.data.bearer_token);
         
-        setToken(res.data.bearer_token);
-      }).catch(err => setToken(null));
+      setToken(res.data.bearer_token);
+    }).catch(err => setToken(null));
 }

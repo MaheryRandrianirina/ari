@@ -14,6 +14,7 @@ import Collapse from '@mui/material/Collapse';
 import { KeyboardArrowDown } from "@mui/icons-material";
 import { UsersWithStatus } from './AdminDashboardContent';
 import { UserTasks } from './UserTasks';
+import { Delete, put } from '../../common/utils/api';
 
 export function Users({users, token, setUsers}:{
     readonly users: UsersWithStatus,
@@ -46,12 +47,7 @@ function NotCheckedUsers({
 
     const handleCheckUser = async(value: string) => {
         try {
-            await axios.put(`http://localhost:3000/user/${value}/check`, {username: value}, {
-                withCredentials: true,
-                headers: {
-                    authorization: localStorage.getItem("bearer-token")
-                }
-            });
+            await put(`${value}/check`, {username: value});
             
             // add current checked user in the list of checked users
             setUsers(users => {
@@ -61,12 +57,12 @@ function NotCheckedUsers({
                     to_check: users.to_check.filter(user => user.username !== value),
                     checked: [...checked_users, new_checked_user]
                 }
-            })
+            });
         }catch(e){
             const err = e as AxiosError<{error:string,message:string,statusCode: number}>;
             // handle token expiration
             if(err.response?.data.statusCode === 401) {
-                handleTokenExpiration(token.set, token.value)
+                handleTokenExpiration(token.set)
                 handleCheckUser(value);
             }else {
                 console.error(err)
@@ -76,12 +72,7 @@ function NotCheckedUsers({
 
     const handleDeleteUser = async(value: string)=>{
         try {
-            await axios.delete(`http://localhost:3000/user/${value}/delete`, {
-                withCredentials: true,
-                headers: {
-                    authorization: localStorage.getItem("bearer-token")
-                }
-            });
+            await Delete(`${value}/delete`);
 
             setUsers((users:{
                 to_check: User[],
@@ -95,7 +86,7 @@ function NotCheckedUsers({
         }catch(e){
             const err = e as AxiosError<{error:string,message:string,statusCode: number}>;
             if(err.response?.data.statusCode === 401) {
-                handleTokenExpiration(token.set, token.value);
+                handleTokenExpiration(token.set);
                 handleDeleteUser(value);
             }else {
                 console.error(err)

@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import axios from "axios";
 import { Task } from "../../App";
 import { handleTokenExpiration } from "../../utils/handleTokenExpiration";
+import { get } from "../../common/utils/api";
 
 export const UserTasks = ({userid, setToken, token}: {
     userid:string, 
@@ -18,18 +19,13 @@ export const UserTasks = ({userid, setToken, token}: {
         
         const fetchUserTasks = async()=>{
             try {
-                const res = await axios.get(`http://localhost:3000/tasks/user/${userid}/`, {
-                    withCredentials: true,
-                    headers: {
-                        authorization:localStorage.getItem("bearer-token")
-                    }
-                });
+                const res = await get(`${userid}`);
                 
                 if(!ignore){
                     setUserTasks(res.data.tasks);
                 }
             }catch(e){
-                handleTokenExpiration(setToken, token);
+                handleTokenExpiration(setToken);
                 fetchUserTasks();
             }
         }

@@ -22,4 +22,4 @@ NOTE :
 
 # NEXT THINGS TO DO :
 - Wrap the api call inside util func
-- Wrap api host inside state
+- Delete setToken prop in every component
