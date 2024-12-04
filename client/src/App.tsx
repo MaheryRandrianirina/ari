@@ -7,13 +7,16 @@ import axios from 'axios';
 import { handleTokenExpiration } from './utils/handleTokenExpiration';
 
 export type Task = {
+  _id: string,
   name: string,
-  checked: boolean
+  status: "done"|"in progress"|"not done",
+  user_id: string|null
 }
+
 export type User = {
   username: string,
-  tasks: Task[],
-  role: string
+  role: string,
+  _id: string
 }
 
 export type Page = "home"|"signin"|"register";
@@ -34,7 +37,7 @@ function App() {
     
     const fetchUser = ()=>{
       if(token && !user){
-        axios.get("http://localhost:3000/user", {
+        axios.get("http://localhost:3000/auth/user", {
           headers: {
             authorization: token
           },

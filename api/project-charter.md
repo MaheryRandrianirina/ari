@@ -14,3 +14,12 @@
      - Not assigned tasks are listed with button to assign a user (click on the button open a search bar to search for the user)
     
     4. User checks tasks list then notice advancement in a gauge
+
+
+NOTE : 
+ -- Must change get method in userController : move the actual logic to the authController then implement logic to only get user by _id [v]
+ -- All places that must be modified are marked by "[x]" [v]
+
+# NEXT THINGS TO DO :
+- Wrap the api call inside util func
+- Wrap api host inside state

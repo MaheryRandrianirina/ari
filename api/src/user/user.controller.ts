@@ -1,4 +1,4 @@
-import { Body, ConflictException, Controller, Delete, Get, Param, Put, Request, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, ConflictException, Controller, Delete, Get, Param, Put, Request, Res, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserGuard } from './user.guard';
 import { Request as Req, Response } from 'express';
@@ -10,23 +10,24 @@ export class UserController {
 
     constructor(private readonly userService: UserService){}
 
-    @Get()
-    @UseGuards(UserGuard)
-    async get(@Request() req: Req)
-    {
-        return await this.userService.get(req);
-    }
-
     @Get('/token')
     @UseGuards(AuthGuard)
     async getToken(@Request() req: Req, @Res() res: Response)
     {
         const bearerToken = await this.userService.getToken(req);
-
+        
         res.json({
             success: true,
             bearer_token: bearerToken
         });
+    }
+    
+    @Get("/:user_id")
+    @UseGuards(UserGuard)
+    async get(@Param() params: {user_id:string})
+    {
+        const {user_id} = params;
+        return await this.userService.get(user_id);
     }
 
     @Put("/:username/check")

@@ -1,6 +1,14 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+import { ObjectId } from 'mongoose';
 import { Observable } from 'rxjs';
+
+export type JWTDecoded = {sub: ObjectId, username: string};
+
+export interface CustomRequest extends Request {
+  user?:JWTDecoded
+}
 
 @Injectable()
 export class UserGuard implements CanActivate {
@@ -10,7 +18,7 @@ export class UserGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request: CustomRequest = context.switchToHttp().getRequest();
     if(request.headers["authorization"] === undefined){
       throw new UnauthorizedException("You are not authorised to access this resource.");
     }
@@ -19,6 +27,8 @@ export class UserGuard implements CanActivate {
     try {
       const verified = this.jwtService.verify(token);
       if(verified){
+        request.user = this.jwtService.decode(token);
+
         return true;
       }
 
