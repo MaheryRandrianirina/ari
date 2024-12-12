@@ -14,6 +14,8 @@
      - Not assigned tasks are listed with button to assign a user (click on the button open a search bar to search for the user)
     
     4. User checks tasks list then notice advancement in a gauge
+     - User could switch task status by moving it toward every status block 
+     - User is able to mark task(in progress) advancement by gauge (converted to % or ratio)
 
 
 NOTE : 
@@ -21,5 +23,5 @@ NOTE :
  -- All places that must be modified are marked by "[x]" [v]
 
 # NEXT THINGS TO DO :
-- Wrap the api call inside util func
-- Delete setToken and token props in every component
+- Wrap the api call inside util func [v]
+- Delete setToken and token props in every component [v]
