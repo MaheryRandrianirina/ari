@@ -1,10 +1,11 @@
 import { Alert, Box, Button, Container, TextField, Typography } from "@mui/material";
-import { ChangeEventHandler, Dispatch, FC, FormEvent, FormEventHandler, SetStateAction, useState } from "react";
+import { ChangeEventHandler, Dispatch, FC, FormEvent, FormEventHandler, SetStateAction, useContext, useState } from "react";
 import { InfinitySpin } from "react-loader-spinner";
 import { Credentials, FormValidation } from "../SignIn/SignIn";
 import { Page } from "../../App";
 import axios from "axios";
 import { post } from "../../common/utils/api";
+import { TokenContext } from "../../common/contexts/TokenContext";
 
 type Flash = {
   type: "error"|"success",
@@ -12,9 +13,8 @@ type Flash = {
 };
 
 export const Register: FC<{
-  setNewActivePage: Dispatch<SetStateAction<Page>>,
-  setToken:Dispatch<SetStateAction<string|null>>
-}> = ({setNewActivePage, setToken})=>{
+  setNewActivePage: Dispatch<SetStateAction<Page>>
+}> = ({setNewActivePage})=>{
     const [credentials, setCredentials]: [
       credentials: Credentials & {password_confirmation: string|null}, 
       setCredentials:Dispatch<SetStateAction<Credentials & {password_confirmation: string|null}>>] = useState({
@@ -30,6 +30,8 @@ export const Register: FC<{
         message:null
     } as Flash);
     
+    const setToken = useContext(TokenContext);
+
     const formValidation: FormValidation & {password_confirmation: boolean} = {
         username: credentials.username !== null && credentials.username.length >= 3, 
         password:credentials.password !== null && credentials.password.length >= 8,

@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import { FC, useState } from "react";
 import { ResponsiveAppBar } from "./ResponsiveAppBar";
 import { User } from "../App";
 import { AdminDashboardContent } from "./dashboard/AdminDashboardContent";
@@ -8,10 +8,8 @@ import CloseIcon from '@mui/icons-material/Close';
 
 export const Dashboard: FC<{
     Logout: ()=>void, 
-    user: User|null,
-    setToken:Dispatch<SetStateAction<string|null>>, 
-    token:string|null
-}> = ({Logout, user, setToken, token})=>{
+    user: User|null
+}> = ({Logout, user})=>{
     const [snackbarMessage, setSnackbarMessage] = useState<string|null>(null);
 
     const handleCloseSnackbar = (
@@ -39,7 +37,7 @@ export const Dashboard: FC<{
     return <>
         <DashboardContext.Provider value={setSnackbarMessage}>
             <ResponsiveAppBar Logout={Logout}/>
-            {user?.role === "admin" && <AdminDashboardContent token={{set: setToken, value: token}}/>}
+            {user?.role === "admin" && <AdminDashboardContent/>}
         </DashboardContext.Provider>
         <Snackbar
             open={snackbarMessage!==null}

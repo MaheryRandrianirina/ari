@@ -2,9 +2,9 @@ import Grid from '@mui/system/Grid';
 import { Button, Checkbox, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import Box from '@mui/system/Box';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { User } from "../../App";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -15,34 +15,35 @@ import { KeyboardArrowDown } from "@mui/icons-material";
 import { UsersWithStatus } from './AdminDashboardContent';
 import { UserTasks } from './UserTasks';
 import { Delete, put } from '../../common/utils/api';
+import { TokenContext } from '../../common/contexts/TokenContext';
 
-export function Users({users, token, setUsers}:{
+export function Users({users, setUsers}:{
     readonly users: UsersWithStatus,
-    readonly token:{set:Dispatch<SetStateAction<string|null>>, value:string|null},
     readonly setUsers: Dispatch<SetStateAction<UsersWithStatus>>
 }){
+    const setToken = useContext(TokenContext);
 
     return <>
         <Typography variant="h5" gutterBottom align="left" sx={{mt: 3}}>Users</Typography>
         <Grid container spacing={4}>
             <Grid size={3}>
-                <NotCheckedUsers token={token} users={users.to_check} setUsers={setUsers}/>
+                <NotCheckedUsers setToken={setToken} users={users.to_check} setUsers={setUsers}/>
             </Grid>
             <Grid size={3}>
-                <CheckedUsers users={users.checked} token={token}/>
+                <CheckedUsers users={users.checked} setToken={setToken}/>
             </Grid> 
         </Grid>
     </>
 }
 
 function NotCheckedUsers({
-    users, setUsers, token
+    users, setUsers, setToken
 }: Readonly<{
     readonly users: User[], 
     setUsers: Dispatch<SetStateAction<{
         to_check: User[],
         checked: User[]
-}>>, token: {set:Dispatch<SetStateAction<string|null>>, value:string|null}}>){
+}>>, setToken: Dispatch<SetStateAction<string|null>>}>){
     const [handleExpand, handleExpandLess, usersTodisplay, expandNumber] = useExpand(10, users);
 
     const handleCheckUser = async(value: string) => {
@@ -62,7 +63,7 @@ function NotCheckedUsers({
             const err = e as AxiosError<{error:string,message:string,statusCode: number}>;
             // handle token expiration
             if(err.response?.data.statusCode === 401) {
-                handleTokenExpiration(token.set)
+                handleTokenExpiration(setToken)
                 handleCheckUser(value);
             }else {
                 console.error(err)
@@ -86,7 +87,7 @@ function NotCheckedUsers({
         }catch(e){
             const err = e as AxiosError<{error:string,message:string,statusCode: number}>;
             if(err.response?.data.statusCode === 401) {
-                handleTokenExpiration(token.set);
+                handleTokenExpiration(setToken);
                 handleDeleteUser(value);
             }else {
                 console.error(err)
@@ -131,9 +132,9 @@ function NotCheckedUsers({
   </Box>
 }
 
-function CheckedUsers({users, token}: { 
+function CheckedUsers({users, setToken}: { 
     readonly users: User[], 
-    readonly token:{set:Dispatch<SetStateAction<string|null>>, value:string|null}
+    readonly setToken: Dispatch<SetStateAction<string|null>>
 }){
     const [handleExpand, handleExpandLess, usersTodisplay, expandNumber] = useExpand(10, users);
     const [usersWithExpandedTasks, setUsersWithExpandedTasks] = useState<string[]>([]);
@@ -165,7 +166,7 @@ function CheckedUsers({users, token}: {
                             </ListItemButton>
                     </ListItem>
                     <Collapse in={usersWithExpandedTasks.includes(value.username)} timeout="auto" unmountOnExit>
-                        <UserTasks token={token.value} setToken={token.set} userid={users.filter(user => user._id === value._id)[0]._id} />
+                        <UserTasks setToken={setToken} userid={users.filter(user => user._id === value._id)[0]._id} />
                     </Collapse>
                 </div>
             );

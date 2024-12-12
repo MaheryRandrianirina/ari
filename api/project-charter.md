@@ -22,4 +22,4 @@ NOTE :
 
 # NEXT THINGS TO DO :
 - Wrap the api call inside util func
-- Delete setToken prop in every component
+- Delete setToken and token props in every component

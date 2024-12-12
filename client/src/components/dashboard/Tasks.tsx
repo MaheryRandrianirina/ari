@@ -1,6 +1,6 @@
 import Grid from '@mui/system/Grid';
 import { Task, User } from '../../App';
-import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, MouseEventHandler, SetStateAction, useContext, useEffect, useState } from 'react';
 import { AxiosError, AxiosResponse } from 'axios';
 import { Alert, Button, Card, CardActionArea, CardContent, Collapse, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -10,11 +10,10 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { TasksStatus, useTaskForm } from './hooks/useTaskForm';
 import { TaskResponsible } from './TaskResponsible';
 import { Delete, get, post } from '../../common/utils/api';
+import { TokenContext } from '../../common/contexts/TokenContext';
 
 
-export function Tasks({token, setToken, users}:{
-    readonly token:string|null, 
-    readonly setToken:Dispatch<SetStateAction<string|null>>,
+export function Tasks({users}:{
     readonly users: User[]
 }){
     const [
@@ -30,6 +29,7 @@ export function Tasks({token, setToken, users}:{
         setTaskError
     ] = useTaskForm();
     
+    const setToken = useContext(TokenContext);
 
     useEffect(()=>{
         const fetchTasks = async()=>{
@@ -135,13 +135,13 @@ export function Tasks({token, setToken, users}:{
             {!tasksAreEmpty && 
                 <>
                     <Grid size={3}>
-                        <TasksList users={users} setTasks={setTasks} token={token} setToken={setToken} tasks={tasks.not_done} status='not done'/>
+                        <TasksList users={users} setTasks={setTasks} setToken={setToken} tasks={tasks.not_done} status='not done'/>
                     </Grid>
                     <Grid size={3}>
-                        <TasksList setTasks={setTasks} token={token} setToken={setToken} tasks={tasks.in_progress} status='in progress'/>
+                        <TasksList setTasks={setTasks} setToken={setToken} tasks={tasks.in_progress} status='in progress'/>
                     </Grid>
                     <Grid size={3}>
-                        <TasksList setTasks={setTasks} token={token} setToken={setToken} tasks={tasks.done} status='done'/>
+                        <TasksList setTasks={setTasks} setToken={setToken} tasks={tasks.done} status='done'/>
                     </Grid>
                 </>
             }
@@ -149,11 +149,10 @@ export function Tasks({token, setToken, users}:{
     </>
 }
 
-function TasksList({tasks, setTasks, status, setToken, token, users}:{
+function TasksList({tasks, setTasks, status, setToken, users}:{
     readonly tasks: Task[], 
     readonly setTasks:Dispatch<SetStateAction<TasksStatus>>,
     readonly status: "not done"|"in progress"|"done",
-    readonly token:string|null, 
     readonly setToken:Dispatch<SetStateAction<string|null>>,
     readonly users?: User[]
     

@@ -59,9 +59,9 @@ function App() {
   
   return (
     <TokenContext.Provider value={setToken}>
-      {activePage === "home" && <Dashboard Logout={Logout} user={user} token={token} setToken={setToken}/>}
-      {activePage === "signin" && <SignIn setToken={setToken} setNewActivePage={setActivePage}/>} 
-      {activePage === "register" && <Register setToken={setToken} setNewActivePage={setActivePage}/>}
+      {activePage === "home" && <Dashboard Logout={Logout} user={user}/>}
+      {activePage === "signin" && <SignIn setNewActivePage={setActivePage}/>} 
+      {activePage === "register" && <Register setNewActivePage={setActivePage}/>}
     </TokenContext.Provider>
   )
 }

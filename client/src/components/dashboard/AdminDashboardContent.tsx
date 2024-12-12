@@ -1,23 +1,26 @@
 import { Typography } from "@mui/material";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import { User } from "../../App";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { handleTokenExpiration } from "../../utils/handleTokenExpiration";
 import { Users } from "./Users";
 import { Tasks } from "./Tasks";
 import { get } from "../../common/utils/api";
+import { TokenContext } from "../../common/contexts/TokenContext";
 
 export type UsersWithStatus = {
     to_check: User[],
     checked: User[]
 }
 
-export function AdminDashboardContent ({token}: {readonly token: {set:Dispatch<SetStateAction<string|null>>, value:string|null}}){
+export function AdminDashboardContent (){
     const [users, setUsers] = useState<UsersWithStatus>({
         to_check: [],
         checked: []
     });
-    
+
+    const setToken = useContext(TokenContext);
+
     useEffect(()=>{
         const fetchUsers = async()=>{
             try {
@@ -45,7 +48,7 @@ export function AdminDashboardContent ({token}: {readonly token: {set:Dispatch<S
                 if(error.status === 500){
                     console.log("handle connexion expired error");
                 }else if(error.status === 401) {
-                    handleTokenExpiration(token.set);
+                    handleTokenExpiration(setToken);
                     fetchUsers();
                 }else {
                     console.error("error while fetching users : ", e);
@@ -58,8 +61,8 @@ export function AdminDashboardContent ({token}: {readonly token: {set:Dispatch<S
     }, []);
     
     return <>
-        <Users users={users} setUsers={setUsers} token={token}/>
-        <Tasks token={token.value} setToken={token.set} users={users.to_check}/>
+        <Users users={users} setUsers={setUsers}/>
+        <Tasks users={users.to_check}/>
     </>
 }
 

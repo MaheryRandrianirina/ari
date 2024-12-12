@@ -1,9 +1,10 @@
-import { ChangeEventHandler, Dispatch, FC, FormEvent, FormEventHandler, SetStateAction, useEffect, useState } from "react"
+import { ChangeEventHandler, Dispatch, FC, FormEvent, FormEventHandler, SetStateAction, useContext, useEffect, useState } from "react"
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import axios from "axios"
 import { Page } from "../../App";
 import { InfinitySpin } from "react-loader-spinner";
 import { post } from "../../common/utils/api";
+import { TokenContext } from "../../common/contexts/TokenContext";
 
 export type Credentials = {
   username: string|null,
@@ -16,9 +17,8 @@ export type FormValidation = {
 }
 
 export const SignIn: FC<{
-  setToken: Dispatch<SetStateAction<string|null>>,
   setNewActivePage: Dispatch<SetStateAction<Page>>
-}> = ({setToken, setNewActivePage})=>{
+}> = ({setNewActivePage})=>{
 
   const [credentials, setCredentials]: [credentials: Credentials, setCredentials:Dispatch<SetStateAction<Credentials>>] = useState({
     username: null,
@@ -26,6 +26,8 @@ export const SignIn: FC<{
   } as Credentials);
   const [submit, setSubmit]: [boolean, Dispatch<SetStateAction<boolean>>] = useState(true);
   const [showLoader, setShowLoader]:[boolean, Dispatch<SetStateAction<boolean>>] = useState(false);
+  
+  const setToken = useContext(TokenContext);
 
   const formValidation: FormValidation = {
     username: credentials.username !== null && credentials.username.length >= 3, 
@@ -36,6 +38,8 @@ export const SignIn: FC<{
     document.title = "Login";
   }, [credentials]);
 
+  
+
   const handleSubmit: FormEventHandler = (e: FormEvent) => {
     e.preventDefault();
     
@@ -44,7 +48,7 @@ export const SignIn: FC<{
 
       return;
     }
-
+    
     post("login", credentials).then(res => {
       localStorage.setItem("bearer-token", res.data.bearer_token);
       setToken(res.data.bearer_token);
