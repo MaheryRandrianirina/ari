@@ -66,7 +66,7 @@ function App() {
 
   useEffect(()=>{
     const fetchUser = ()=>{
-      if(token && !user){
+      if(token){
         get("auth/user", token).then(res => {
           setUser(res.data)
         }).catch(err => {

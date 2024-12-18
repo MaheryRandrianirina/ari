@@ -266,8 +266,8 @@ function TasksList({tasks, setTasks, status, setToken, token, users}:{
                         </ListItemButton>
                     </ListItem>
                     <Collapse in={taskIdWithExpandedResponsible.includes(task._id)} timeout="auto">
-                        {(authUser?.role === "admin" && status === "not done") && <TaskResponsible taskId={task._id} responsibleId={task.user_id} users={users}/>}
                         {(status === "in progress") && <TaskProgress task={task}/>}
+                        {(authUser?.role === "admin") && <TaskResponsible taskId={task._id} responsibleId={task.user_id} users={users}/>} 
                     </Collapse>
                 </div>
             );

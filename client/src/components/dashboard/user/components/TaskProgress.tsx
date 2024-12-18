@@ -30,7 +30,6 @@ const updateTaskProgress = async(task_id:string, progress:number, setToken:Dispa
       }
     }
   }, 1000);
-  
 }
 
 export function TaskProgress({task}: {readonly task:Task}) {

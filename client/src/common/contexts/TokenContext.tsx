@@ -5,5 +5,5 @@ export const TokenContext = createContext<{
     token: string|null
 }>({
     setToken: (value:SetStateAction<string | null>)=>null,
-    token: ""
+    token: localStorage.getItem("bearer-token")
 })

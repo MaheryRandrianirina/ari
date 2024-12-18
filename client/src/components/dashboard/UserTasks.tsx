@@ -20,7 +20,7 @@ export const UserTasks = ({userid}: {
         
         const fetchUserTasks = async()=>{
             try {
-                const res = await get(`${userid}`, token);
+                const res = await get(`tasks/user/${userid}`, token);
                 
                 if(!ignore){
                     setUserTasks(res.data.tasks);
@@ -38,7 +38,7 @@ export const UserTasks = ({userid}: {
         return ()=>{
             ignore = true
         };
-    }, [userid]);
+    }, []);
 
     return <List component="div" disablePadding>
     {userTasks.map(task => {
