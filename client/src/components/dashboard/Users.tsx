@@ -21,34 +21,34 @@ export function Users({users, setUsers}:{
     readonly users: UsersWithStatus,
     readonly setUsers: Dispatch<SetStateAction<UsersWithStatus>>
 }){
-    const setToken = useContext(TokenContext);
+    const {setToken, token} = useContext(TokenContext);
 
     return <>
         <Typography variant="h5" gutterBottom align="left" sx={{mt: 3}}>Users</Typography>
         <Grid container spacing={4}>
             <Grid size={3}>
-                <NotCheckedUsers setToken={setToken} users={users.to_check} setUsers={setUsers}/>
+                <NotCheckedUsers setToken={setToken} token={token} users={users.to_check} setUsers={setUsers}/>
             </Grid>
             <Grid size={3}>
-                <CheckedUsers users={users.checked} setToken={setToken}/>
+                <CheckedUsers users={users.checked} setToken={setToken} token={token}/>
             </Grid> 
         </Grid>
     </>
 }
 
 function NotCheckedUsers({
-    users, setUsers, setToken
+    users, setUsers, setToken, token
 }: Readonly<{
     readonly users: User[], 
     setUsers: Dispatch<SetStateAction<{
         to_check: User[],
         checked: User[]
-}>>, setToken: Dispatch<SetStateAction<string|null>>}>){
+}>>, setToken: Dispatch<SetStateAction<string|null>>, token: string|null}>){
     const [handleExpand, handleExpandLess, usersTodisplay, expandNumber] = useExpand(10, users);
 
     const handleCheckUser = async(value: string) => {
         try {
-            await put(`${value}/check`, {username: value});
+            await put(`${value}/check`, {username: value}, token);
             
             // add current checked user in the list of checked users
             setUsers(users => {
@@ -61,8 +61,7 @@ function NotCheckedUsers({
             });
         }catch(e){
             const err = e as AxiosError<{error:string,message:string,statusCode: number}>;
-            // handle token expiration
-            if(err.response?.data.statusCode === 401) {
+            if(err.response?.data.statusCode === 401 && err.response?.data.message.toLowerCase() === "token has expired") {
                 handleTokenExpiration(setToken)
                 handleCheckUser(value);
             }else {
@@ -73,7 +72,7 @@ function NotCheckedUsers({
 
     const handleDeleteUser = async(value: string)=>{
         try {
-            await Delete(`${value}/delete`);
+            await Delete(`${value}/delete`, token);
 
             setUsers((users:{
                 to_check: User[],
@@ -86,7 +85,7 @@ function NotCheckedUsers({
             });
         }catch(e){
             const err = e as AxiosError<{error:string,message:string,statusCode: number}>;
-            if(err.response?.data.statusCode === 401) {
+            if(err.response?.data.statusCode === 401 && err.response?.data.message.toLowerCase() === "token has expired") {
                 handleTokenExpiration(setToken);
                 handleDeleteUser(value);
             }else {
@@ -132,9 +131,10 @@ function NotCheckedUsers({
   </Box>
 }
 
-function CheckedUsers({users, setToken}: { 
+function CheckedUsers({users, setToken, token}: { 
     readonly users: User[], 
-    readonly setToken: Dispatch<SetStateAction<string|null>>
+    readonly setToken: Dispatch<SetStateAction<string|null>>,
+    readonly token: string|null
 }){
     const [handleExpand, handleExpandLess, usersTodisplay, expandNumber] = useExpand(10, users);
     const [usersWithExpandedTasks, setUsersWithExpandedTasks] = useState<string[]>([]);
@@ -166,7 +166,7 @@ function CheckedUsers({users, setToken}: {
                             </ListItemButton>
                     </ListItem>
                     <Collapse in={usersWithExpandedTasks.includes(value.username)} timeout="auto" unmountOnExit>
-                        <UserTasks setToken={setToken} userid={users.filter(user => user._id === value._id)[0]._id} />
+                        <UserTasks userid={users.filter(user => user._id === value._id)[0]._id} />
                     </Collapse>
                 </div>
             );

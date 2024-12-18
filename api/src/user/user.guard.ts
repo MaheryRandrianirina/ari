@@ -34,9 +34,7 @@ export class UserGuard implements CanActivate {
 
       return false;
     }catch(e){
-      throw new UnauthorizedException(JSON.stringify({
-        message: "Token has expired"
-      }));
+      throw new UnauthorizedException("Token has expired");
     }  
   }
 }

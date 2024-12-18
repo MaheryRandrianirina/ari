@@ -1,3 +1,9 @@
-import { createContext, SetStateAction } from "react";
+import { createContext, Dispatch, SetStateAction } from "react";
 
-export const TokenContext = createContext((value:SetStateAction<string | null>)=>console.log("default token dispatcher"))
+export const TokenContext = createContext<{
+    setToken: Dispatch<SetStateAction<string|null>>,
+    token: string|null
+}>({
+    setToken: (value:SetStateAction<string | null>)=>null,
+    token: ""
+})

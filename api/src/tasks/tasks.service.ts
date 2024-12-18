@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Task } from './schemas/task.schema';
 import { Model, Types } from 'mongoose';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -28,5 +29,9 @@ export class TasksService {
 
     async attachResponsible(taskid: Types.ObjectId, userid: Types.ObjectId) {
         return await this.taskModel.updateOne({_id: taskid}, {user_id: userid});
+    }
+
+    async updateTask(taskid:string, data: UpdateTaskDto) {
+        return await this.taskModel.updateOne({_id: new Types.ObjectId(taskid)}, {...data})
     }
 }

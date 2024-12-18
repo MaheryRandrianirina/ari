@@ -1,50 +1,23 @@
-import { FC, useState } from "react";
+import { FC, useContext, useEffect } from "react";
 import { ResponsiveAppBar } from "./ResponsiveAppBar";
 import { User } from "../App";
 import { AdminDashboardContent } from "./dashboard/AdminDashboardContent";
-import { IconButton, Snackbar, SnackbarCloseReason } from "@mui/material";
 import { DashboardContext } from "./dashboard/contexts/DashboardContext";
-import CloseIcon from '@mui/icons-material/Close';
+import { SnackbarContext } from "./dashboard/contexts/SnackbarContext";
+import { UserDashboardContent } from "./dashboard/user/UserDashboardContent";
+
 
 export const Dashboard: FC<{
     Logout: ()=>void, 
     user: User|null
 }> = ({Logout, user})=>{
-    const [snackbarMessage, setSnackbarMessage] = useState<string|null>(null);
-
-    const handleCloseSnackbar = (
-        event: React.SyntheticEvent | Event,
-        reason?: SnackbarCloseReason,
-      ) => {
-        if (reason === 'clickaway') {
-          return;
-        }
+    useEffect(()=>{ document.title = "Dashboard"; });
     
-        setSnackbarMessage(null);
-    };
-
-    const action = (
-        <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={handleCloseSnackbar}
-          >
-            <CloseIcon fontSize="small" />
-        </IconButton>
-    );
+    const setSnackbarMessage = useContext(SnackbarContext);
     
-    return <>
-        <DashboardContext.Provider value={setSnackbarMessage}>
-            <ResponsiveAppBar Logout={Logout}/>
-            {user?.role === "admin" && <AdminDashboardContent/>}
-        </DashboardContext.Provider>
-        <Snackbar
-            open={snackbarMessage!==null}
-            autoHideDuration={6000}
-            onClose={handleCloseSnackbar}
-            message={snackbarMessage}
-            action={action}
-        />
-    </>
+    return <DashboardContext.Provider value={setSnackbarMessage}>
+        <ResponsiveAppBar Logout={Logout}/>
+        {user?.role === "admin" && <AdminDashboardContent/>}
+        {user?.role === "user" && <UserDashboardContent/>}
+    </DashboardContext.Provider>
 }

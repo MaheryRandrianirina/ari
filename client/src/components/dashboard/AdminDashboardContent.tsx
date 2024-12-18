@@ -1,7 +1,6 @@
-import { Typography } from "@mui/material";
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { User } from "../../App";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { handleTokenExpiration } from "../../utils/handleTokenExpiration";
 import { Users } from "./Users";
 import { Tasks } from "./Tasks";
@@ -19,14 +18,14 @@ export function AdminDashboardContent (){
         checked: []
     });
 
-    const setToken = useContext(TokenContext);
+    const {setToken, token} = useContext(TokenContext);
 
     useEffect(()=>{
         const fetchUsers = async()=>{
             try {
                 const response: AxiosResponse<{
                     users: User[]
-                }> = await get("users");
+                }> = await get("users", token);
                 
                 const {users} = response.data;
 
@@ -44,10 +43,10 @@ export function AdminDashboardContent (){
                 
                 setUsers({to_check: toCheckUsers, checked: checkedUsers});
             }catch(e: unknown){
-                const error = e as AxiosError
+                const error = e as AxiosError<{message:string}>
                 if(error.status === 500){
                     console.log("handle connexion expired error");
-                }else if(error.status === 401) {
+                }else if(error.status === 401 && error.response?.data.message.toLowerCase() === "token has expired") {
                     handleTokenExpiration(setToken);
                     fetchUsers();
                 }else {

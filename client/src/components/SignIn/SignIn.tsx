@@ -1,10 +1,11 @@
 import { ChangeEventHandler, Dispatch, FC, FormEvent, FormEventHandler, SetStateAction, useContext, useEffect, useState } from "react"
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import { Page } from "../../App";
 import { InfinitySpin } from "react-loader-spinner";
 import { post } from "../../common/utils/api";
 import { TokenContext } from "../../common/contexts/TokenContext";
+import { SnackbarContext } from "../dashboard/contexts/SnackbarContext";
 
 export type Credentials = {
   username: string|null,
@@ -27,7 +28,8 @@ export const SignIn: FC<{
   const [submit, setSubmit]: [boolean, Dispatch<SetStateAction<boolean>>] = useState(true);
   const [showLoader, setShowLoader]:[boolean, Dispatch<SetStateAction<boolean>>] = useState(false);
   
-  const setToken = useContext(TokenContext);
+  const {setToken, token} = useContext(TokenContext);
+  const setSnackbarMessage = useContext(SnackbarContext);
 
   const formValidation: FormValidation = {
     username: credentials.username !== null && credentials.username.length >= 3, 
@@ -49,11 +51,14 @@ export const SignIn: FC<{
       return;
     }
     
-    post("login", credentials).then(res => {
+    post("login", credentials, token).then(res => {
       localStorage.setItem("bearer-token", res.data.bearer_token);
       setToken(res.data.bearer_token);
-    }).catch(() => {
+    }).catch((e) => {
       setShowLoader(false);
+      
+      const err = e as AxiosError<{message:string}>;
+      if(err.response?.data.message) setSnackbarMessage(err.response?.data.message);
     }); 
   }
 

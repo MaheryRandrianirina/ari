@@ -6,6 +6,7 @@ import { Page } from "../../App";
 import axios from "axios";
 import { post } from "../../common/utils/api";
 import { TokenContext } from "../../common/contexts/TokenContext";
+import { Token } from "@mui/icons-material";
 
 type Flash = {
   type: "error"|"success",
@@ -30,7 +31,7 @@ export const Register: FC<{
         message:null
     } as Flash);
     
-    const setToken = useContext(TokenContext);
+    const {setToken, token} = useContext(TokenContext);
 
     const formValidation: FormValidation & {password_confirmation: boolean} = {
         username: credentials.username !== null && credentials.username.length >= 3, 
@@ -47,7 +48,7 @@ export const Register: FC<{
         return;
       }
   
-      post("register", credentials, {
+      post("register", credentials, token, {
         onUploadProgress: (event) => {
             setShowLoader(true);
         }

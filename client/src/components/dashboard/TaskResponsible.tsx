@@ -21,16 +21,16 @@ export const TaskResponsible = memo(({taskId, responsibleId, users}:{
 
     const setSnackbarMessage = useContext(DashboardContext);
 
-    const setToken = useContext(TokenContext);
+    const {setToken, token} = useContext(TokenContext);
 
     const fetchResponsible = async(responsibleId:string)=>{
         try {
-            const res = await get(`user/${responsibleId}`);
+            const res = await get(`user/${responsibleId}`, token);
 
             setResponsible(res.data.username);
         }catch(e) {
-            const err = e as AxiosError;
-            if(err.status === 401) {
+            const err = e as AxiosError<{message:string}>;
+            if(err.status === 401 && err.response?.data.message.toLowerCase() === "token has expired") {
                 handleTokenExpiration(setToken);
 
                 await fetchResponsible(responsibleId);
@@ -54,7 +54,7 @@ export const TaskResponsible = memo(({taskId, responsibleId, users}:{
 
     const handleAddTaskResponsible = async(task_id:string, user_id:string)=>{
         try {
-            await post(`http://localhost:3000/tasks/${task_id}/user`, {user_id});
+            await post(`http://localhost:3000/tasks/${task_id}/user`, {user_id}, token);
             await fetchResponsible(user_id);
         }catch(e){
             const err = e as AxiosError<{message:string}>;

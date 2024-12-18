@@ -13,7 +13,10 @@ export class Task {
   status: "done"|"in progress"|"not done";
 
   @Prop({ref: "users", type: Types.ObjectId, default:null})
-  user_id: Types.ObjectId|null
+  user_id: Types.ObjectId|null;
+
+  @Prop({default: 0})
+  progress: number;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

@@ -1,29 +1,34 @@
 import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material"
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Task } from "../../App";
 import { handleTokenExpiration } from "../../utils/handleTokenExpiration";
 import { get } from "../../common/utils/api";
+import { TokenContext } from "../../common/contexts/TokenContext";
+import { AxiosError } from "axios";
 
-export const UserTasks = ({userid, setToken}: {
-    userid:string, 
-    setToken:Dispatch<SetStateAction<string|null>>
+export const UserTasks = ({userid}: {
+    userid:string
 })=>{
     const [userTasks, setUserTasks] = useState<Task[]>([]);
     
+    const {setToken,token} = useContext(TokenContext);
+
     useEffect(()=>{
         let ignore = false;
         
         const fetchUserTasks = async()=>{
             try {
-                const res = await get(`${userid}`);
+                const res = await get(`${userid}`, token);
                 
                 if(!ignore){
                     setUserTasks(res.data.tasks);
                 }
             }catch(e){
-                handleTokenExpiration(setToken);
+                const err = e as AxiosError<{message:string}>;
+                if(err.status === 401 && err.response?.data.message.toLowerCase() === "token has expired") handleTokenExpiration(setToken);
+                
                 fetchUserTasks();
             }
         }
