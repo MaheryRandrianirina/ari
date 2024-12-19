@@ -149,13 +149,13 @@ export function Tasks({users}:{
             {tasksAreEmpty && <Typography>There are no tasks yet</Typography>}
             {!tasksAreEmpty && 
                 <>
-                    <Grid size={3}>
+                    <Grid size={{xs: 12, sm: 5, md: 4, lg:3}}>
                         <TasksList users={users} setTasks={setTasks} setToken={setToken} token={token} tasks={tasks.not_done} status='not done'/>
                     </Grid>
-                    <Grid size={3}>
+                    <Grid size={{xs: 12, sm: 5, md: 4, lg:3}}>
                         <TasksList setTasks={setTasks} setToken={setToken} token={token} tasks={tasks.in_progress} status='in progress'/>
                     </Grid>
-                    <Grid size={3}>
+                    <Grid size={{xs: 12, sm: 5, md: 4, lg:3}}>
                         <TasksList setTasks={setTasks} setToken={setToken} token={token} tasks={tasks.done} status='done'/>
                     </Grid>
                 </>

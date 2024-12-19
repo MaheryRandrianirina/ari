@@ -1,4 +1,4 @@
-import Grid from '@mui/system/Grid';
+import Grid from '@mui/material/Grid2';
 import { Button, Checkbox, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import Box from '@mui/system/Box';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -26,10 +26,10 @@ export function Users({users, setUsers}:{
     return <>
         <Typography variant="h5" gutterBottom align="left" sx={{mt: 3}}>Users</Typography>
         <Grid container spacing={4}>
-            <Grid size={3}>
+            <Grid size={{xs: 12, sm: 5, md: 4, lg:3}}>
                 <NotCheckedUsers setToken={setToken} token={token} users={users.to_check} setUsers={setUsers}/>
             </Grid>
-            <Grid size={3}>
+            <Grid size={{xs: 12, sm: 5, md: 4, lg:3}}>
                 <CheckedUsers users={users.checked} setToken={setToken} token={token}/>
             </Grid> 
         </Grid>
