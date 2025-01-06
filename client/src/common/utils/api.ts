@@ -9,7 +9,7 @@ const get = async(route:string, token: string|null)=>{
 }
 
 const post = async(route:string, data: {[name:string]: string|number|null},token: string|null, config?: AxiosRequestConfig)=>{
-    return await axios.post(`http://localhost:3000/${route}`, data, config ? {...apiOptions, ...config, headers: {authorization: token}} : apiOptions);
+    return await axios.post(`http://localhost:3000/${route}`, data, config ? {...apiOptions, ...config, headers: {authorization: token}} : {...apiOptions, headers: {authorization: token}});
 }
 
 const put = async(route:string, data: {[name:string]: string|number}, token: string|null)=>{

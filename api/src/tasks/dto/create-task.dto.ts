@@ -6,7 +6,7 @@ export class CreateTaskDto {
     task: string
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     status?: string
 
     @IsNumber()
