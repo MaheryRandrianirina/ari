@@ -61,7 +61,7 @@ export const TaskResponsible = memo(({taskId, responsibleId, users}:{
             if(err.response?.data.message) setSnackbarMessage(err.response?.data.message);
         }
     }    
-    console.log(users)
+    
     return <div>
         {responsible && <Typography>{responsible}</Typography>}
         {!responsible && <Button id="add-responsible-button" color="primary" onClick={handleShowTaskResponsibleMenu}>Add responsible</Button>}

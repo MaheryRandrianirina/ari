@@ -235,7 +235,7 @@ function TasksList({tasks, setTasks, status, setToken, token, users}:{
         }
     }
 
-    return <Box component="section" sx={{ p: 2, borderRadius:1, boxShadow: "0 0 10px #ccc" }} onDragOver={allowDrop} onDrop={handleDrop}>
+    return <Box component="section" sx={{ p: 2, borderRadius:1, boxShadow: "0 0 10px #ccc" }} onDragOver={allowDrop} onDrop={authUser?.role === "user" ? handleDrop : undefined}>
         <Typography variant="h6" gutterBottom align="left">{status}</Typography>
         <List sx={{ width: '100%', maxWidth: 360 }} ref={listRef}>
             {tasks.map((task, idx) => {
