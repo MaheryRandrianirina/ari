@@ -54,14 +54,14 @@ export const TaskResponsible = memo(({taskId, responsibleId, users}:{
 
     const handleAddTaskResponsible = async(task_id:string, user_id:string)=>{
         try {
-            await post(`http://localhost:3000/tasks/${task_id}/user`, {user_id}, token);
+            await post(`tasks/${task_id}/user`, {user_id}, token);
             await fetchResponsible(user_id);
         }catch(e){
             const err = e as AxiosError<{message:string}>;
             if(err.response?.data.message) setSnackbarMessage(err.response?.data.message);
         }
     }    
-
+    console.log(users)
     return <div>
         {responsible && <Typography>{responsible}</Typography>}
         {!responsible && <Button id="add-responsible-button" color="primary" onClick={handleShowTaskResponsibleMenu}>Add responsible</Button>}

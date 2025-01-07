@@ -61,7 +61,7 @@ export function AdminDashboardContent (){
     
     return <>
         <Users users={users} setUsers={setUsers}/>
-        <Tasks users={users.to_check}/>
+        <Tasks users={users.checked}/>
     </>
 }
 

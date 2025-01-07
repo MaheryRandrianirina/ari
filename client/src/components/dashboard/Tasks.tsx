@@ -102,7 +102,7 @@ export function Tasks({users}:{
         setLoadingTaskSaving(false);
         
     }
-
+    
     const tasksAreEmpty = tasks.done.length === 0 && tasks.in_progress.length === 0 && tasks.not_done.length === 0;
     return <>
         <Typography variant="h5" gutterBottom align="left" sx={{mt: 3}}>Tasks</Typography>

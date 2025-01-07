@@ -48,7 +48,7 @@ function NotCheckedUsers({
 
     const handleCheckUser = async(value: string) => {
         try {
-            await put(`${value}/check`, {username: value}, token);
+            await put(`user/${value}/check`, {username: value}, token);
             
             // add current checked user in the list of checked users
             setUsers(users => {
