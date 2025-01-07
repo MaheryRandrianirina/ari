@@ -150,13 +150,13 @@ export function Tasks({users}:{
             {!tasksAreEmpty && 
                 <>
                     <Grid size={{xs: 12, sm: 5, md: 4, lg:3}}>
-                        <TasksList users={users} setTasks={setTasks} setToken={setToken} token={token} tasks={tasks.not_done} status='not done'/>
+                        <TasksList users={users} setTasks={setTasks} setToken={setToken} token={token} tasks={tasks.not_done} allTasks={tasks} status='not done'/>
                     </Grid>
                     <Grid size={{xs: 12, sm: 5, md: 4, lg:3}}>
-                        <TasksList setTasks={setTasks} setToken={setToken} token={token} tasks={tasks.in_progress} status='in progress'/>
+                        <TasksList setTasks={setTasks} setToken={setToken} token={token} tasks={tasks.in_progress} allTasks={tasks} status='in progress'/>
                     </Grid>
                     <Grid size={{xs: 12, sm: 5, md: 4, lg:3}}>
-                        <TasksList setTasks={setTasks} setToken={setToken} token={token} tasks={tasks.done} status='done'/>
+                        <TasksList setTasks={setTasks} setToken={setToken} token={token} tasks={tasks.done} allTasks={tasks} status='done'/>
                     </Grid>
                 </>
             }
@@ -164,13 +164,14 @@ export function Tasks({users}:{
     </>
 }
 
-function TasksList({tasks, setTasks, status, setToken, token, users}:{
+function TasksList({tasks, setTasks, status, setToken, token, users, allTasks}:{
     readonly tasks: Task[], 
     readonly setTasks:Dispatch<SetStateAction<TasksStatus>>,
     readonly status: "not done"|"in progress"|"done",
     readonly setToken:Dispatch<SetStateAction<string|null>>,
     readonly token: string|null,
-    readonly users?: User[]
+    readonly users?: User[],
+    allTasks: TasksStatus
     
 }){
     const authUser = useContext(ConnectedUserContext);
@@ -207,7 +208,7 @@ function TasksList({tasks, setTasks, status, setToken, token, users}:{
 
     const handleDragTask = (e: DragEvent, task_id:string)=>{
         e.dataTransfer.setData("task_id", task_id);
-        e.dataTransfer.setData("element", e.currentTarget.id);
+        e.dataTransfer.setData("task_status", status);
     }
 
     const allowDrop = (e: DragEvent)=>{
@@ -216,16 +217,26 @@ function TasksList({tasks, setTasks, status, setToken, token, users}:{
     
     const handleDrop = async(e:DragEvent)=>{
         const task_id = e.dataTransfer.getData('task_id');
-        const element_id =  e.dataTransfer.getData('element');
-        const element = document.querySelector(`#${element_id}`);
-        const droppededElement = element?.parentElement?.parentElement;
+        const previousStatus = e.dataTransfer.getData('task_status');
         
         const listElement = listRef.current;
         const newStatus = listElement.previousElementSibling.innerText;
         try {
             await put(`tasks/${task_id}`, {status:newStatus}, token);
 
-            listElement.appendChild(droppededElement);
+            //listElement.appendChild(droppededElement);
+
+            setTasks(tasks => {
+                const previousStatusIndex = transformStatusToIndex(previousStatus) as "done"|"not_done"|"in_progress";
+                const task = allTasks[previousStatusIndex].find(task => task._id === task_id);
+                const newStatusIndex = transformStatusToIndex(newStatus) as "done"|"not_done"|"in_progress";
+
+                return {
+                    ...tasks,
+                    [previousStatusIndex]: allTasks[previousStatusIndex].filter(task => task._id !== task_id),
+                    [newStatusIndex]: [...allTasks[newStatusIndex], task]
+                }
+            })
         }catch(e) {
             const err = e as AxiosError<{message:string}>;
             if(err.status === 401 && err.response?.data.message.toLowerCase() === "token has expired") handleTokenExpiration(setToken);
@@ -274,4 +285,8 @@ function TasksList({tasks, setTasks, status, setToken, token, users}:{
             })}
         </List>
     </Box>
+}
+
+function transformStatusToIndex(status: string) {
+    return status.split(" ").join("_");
 }
