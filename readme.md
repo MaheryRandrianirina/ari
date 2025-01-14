@@ -16,7 +16,7 @@ Ari is a tasks management system kanban like.
 - Download NodeJs from [https://nodejs.org/en/download] then install it if you don't have it installed yet
 - Download Mongodb Compass from [https://www.mongodb.com/products/tools/compass] then install it if you don't have it installed yet
 - Clone the project into your local machine
-- You can specify your database name in the .env.local file inside api/ directory by adding "/your_database_name" after "DATABASE=mongodb://localhost:27017"
+- You can specify your database name in the .env.local file inside api/ directory by adding "/your_database_name" after "DATABASE=mongodb://localhost:27017" (optional)
 - Run Mongodb Compass and connect to the database
 - In the client/ directory, run the following command : npm run dev
 - In the api/directory, run the following command : npm run start:dev
