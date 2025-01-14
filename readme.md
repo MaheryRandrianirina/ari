@@ -20,5 +20,6 @@ Ari is a tasks management system kanban like.
 - Run Mongodb Compass and connect to the database
 - In the client/ directory, run the following command : npm run dev
 - In the api/directory, run the following command : npm run start:dev
+- You must manually define "admin" status of an user you've created directly in the "user" table of the database
 
 ## Enjoy
